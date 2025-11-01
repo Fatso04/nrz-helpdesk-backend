@@ -42,9 +42,11 @@ io.use((socket, next) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ 
+  res.status(200).json({
     message: 'NRZ Helpdesk Backend is LIVE!',
     status: 'success',
+    api: '/api/tickets',
+    docs: 'https://github.com/Fatso04/nrz-helpdesk-backend',
     time: new Date().toISOString()
   });
 });
