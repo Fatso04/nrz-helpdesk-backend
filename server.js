@@ -21,38 +21,28 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 
-// === ROOT ROUTE (MUST BE BEFORE SOCKET.IO) ===
+// === ROOT ROUTE (MUST BE HERE) ===
 app.get('/', (req, res) => {
   res.status(200).json({
     message: 'NRZ Helpdesk Backend is LIVE!',
     status: 'success',
     api: '/api/tickets',
     docs: 'https://github.com/Fatso04/nrz-helpdesk-backend',
-    time: new Date().toISOString(),
-    endpoints: {
-      auth: '/api/auth/login',
-      tickets: '/api/tickets',
-      users: '/api/users'
-    }
+    time: new Date().toISOString()
   });
 });
 
-// === CREATE HTTP SERVER ===
+// === CREATE SERVER ===
 const server = http.createServer(app);
 
-// === SOCKET.IO SETUP ===
+// === SOCKET.IO ===
 const io = socketIo(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
+  cors: { origin: "*" }
 });
 
-// Socket auth middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error('No token'));
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
     socket.user = decoded;
@@ -62,16 +52,13 @@ io.use((socket, next) => {
   }
 });
 
-// Socket connection
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
 });
 
-// Make io globally available
 global.io = io;
 
 // === ERROR HANDLER ===
@@ -80,9 +67,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// === START SERVER ===
+// === START ===
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Root URL: http://localhost:${PORT}`);
 });
