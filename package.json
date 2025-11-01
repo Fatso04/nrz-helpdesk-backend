@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -27,5 +28,13 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fatso04/nrz-helpdesk-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Fatso04/nrz-helpdesk-backend/issues"
+  },
+  "homepage": "https://github.com/Fatso04/nrz-helpdesk-backend#readme"
 }
