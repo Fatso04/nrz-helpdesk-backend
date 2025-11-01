@@ -60,6 +60,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
+app.get('/', (req, res) => {
+  res.json({ message: 'NRZ Helpdesk Backend is LIVE!' });
+});
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
