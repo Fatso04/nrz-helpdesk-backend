@@ -41,6 +41,14 @@ io.use((socket, next) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'NRZ Helpdesk Backend is LIVE!',
+    status: 'success',
+    time: new Date().toISOString()
+  });
+});
+
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -60,9 +68,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-app.get('/', (req, res) => {
-  res.json({ message: 'NRZ Helpdesk Backend is LIVE!' });
-});
+
+
+
 
 // Start the server
 const PORT = process.env.PORT || 5000;
