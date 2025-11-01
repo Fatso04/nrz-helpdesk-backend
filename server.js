@@ -1,9 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const http = require('http'); // Import http to create the server
-const socketIo = require('socket.io'); // Import socket.io
-const jwt = require('jsonwebtoken'); // Import jwt for token verification
+const http = require('http');
+const socketIo = require('socket.io');
+const jwt = require('jsonwebtoken');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
@@ -15,19 +15,40 @@ connectDB();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/api/users', userRoutes); // ADD THIS LINE
 
-// Routes
+// === ROUTES ===
+app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 
-// Create an HTTP server
+// === ROOT ROUTE (MUST BE BEFORE SOCKET.IO) ===
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'NRZ Helpdesk Backend is LIVE!',
+    status: 'success',
+    api: '/api/tickets',
+    docs: 'https://github.com/Fatso04/nrz-helpdesk-backend',
+    time: new Date().toISOString(),
+    endpoints: {
+      auth: '/api/auth/login',
+      tickets: '/api/tickets',
+      users: '/api/users'
+    }
+  });
+});
+
+// === CREATE HTTP SERVER ===
 const server = http.createServer(app);
 
-// Initialize Socket.io
-const io = socketIo(server);
+// === SOCKET.IO SETUP ===
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
-// Middleware for socket authentication
+// Socket auth middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error('No token'));
@@ -41,39 +62,27 @@ io.use((socket, next) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.status(200).json({
-    message: 'NRZ Helpdesk Backend is LIVE!',
-    status: 'success',
-    api: '/api/tickets',
-    docs: 'https://github.com/Fatso04/nrz-helpdesk-backend',
-    time: new Date().toISOString()
-  });
-});
-
-// Socket.io connection handling
+// Socket connection
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  
-  // Handle disconnection
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
 });
 
-// Assign the io instance to global for access in controllers
-global.io = io; // CRITICAL: Allows controllers to emit
+// Make io globally available
+global.io = io;
 
-// Error handling middleware
+// === ERROR HANDLER ===
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-
-
-
-
-// Start the server
+// === START SERVER ===
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Root URL: http://localhost:${PORT}`);
+});
