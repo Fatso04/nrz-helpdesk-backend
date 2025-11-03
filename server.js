@@ -8,6 +8,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const userRoutes = require('./routes/users');
+const mongoose = require('mongoose');
 
 dotenv.config();
 connectDB();
@@ -20,6 +21,14 @@ app.use('/api/users', userRoutes); // ADD THIS LINE
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
+
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://nrz-helpdesk-frontend.vercel.app'
+  ],
+  credentials: true
+}));
 
 // Create an HTTP server
 const server = http.createServer(app);
@@ -40,6 +49,20 @@ io.use((socket, next) => {
     next(new Error('Invalid token'));
   }
 });
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      // These are now in the URI — no need to repeat
+    });
+    console.log('MongoDB Connected');
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
@@ -63,6 +86,11 @@ app.use((err, req, res, next) => {
 app.get('/', (req, res) => {
     res.send('Welcome to the NRZ Helpdesk API!');
 });
+
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://nrz-helpdesk-frontend-*.vercel.app', 'https://nrz-helpdesk-frontend.vercel.app'],
+  credentials: true,
+}));
 
 // Start the server
 const PORT = process.env.PORT || 5000;
