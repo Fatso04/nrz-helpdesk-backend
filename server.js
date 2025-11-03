@@ -50,17 +50,6 @@ io.use((socket, next) => {
   }
 });
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI); // ← No extra options!
-    console.log('MongoDB Connected Successfully');
-  } catch (err) {
-    console.error('MongoDB Connection Error:', err.message);
-    process.exit(1); // ← This causes "Exited with status 1"
-  }
-};
-
-module.exports = connectDB;
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
